@@ -27,9 +27,10 @@ class MainActivity : AppCompatActivity() {
             // TODO Call david's eye distance function
 
         }
+    }
 
     // put images into the "assets/images/" folder
-    private fun getBitmapFromAssets(fileName: String): Bitmap {
+    fun getBitmapFromAssets(fileName: String): Bitmap {
         val assetManager = assets
         var inputStream: InputStream? = null
         try {
