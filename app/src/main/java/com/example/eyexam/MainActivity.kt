@@ -1,9 +1,14 @@
 package com.example.eyexam
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import java.io.IOException
+import java.io.InputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,6 +35,19 @@ class MainActivity : AppCompatActivity() {
                     .setAction("Action", null).show()
         }*/
 
+    }
+
+    // put images into the "assets/images/" folder
+    private fun getBitmapFromAssets(fileName: String): Bitmap {
+        val assetManager = assets
+        var inputStream: InputStream? = null
+        try {
+            inputStream = assetManager.open("images/$fileName")
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        return BitmapFactory.decodeStream(inputStream)
     }
 /*
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
