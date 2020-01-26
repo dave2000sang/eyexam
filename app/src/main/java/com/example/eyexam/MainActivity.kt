@@ -17,12 +17,13 @@ import android.Manifest
 import android.content.Intent
 import com.example.eyexam.EyeDistance
 import android.hardware.camera2.CameraCharacteristics
+import androidx.core.app.ActivityCompat
+import kotlin.system.exitProcess
 
 // Check if this device has a camera
 private fun checkCamera(context: Context): Boolean {
     return (context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA))
 }
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -54,10 +55,16 @@ class MainActivity : AppCompatActivity() {
         }
         examText.setText(dist.toString()).toString()
 
+        // Permission check
+        // TODO: No permission request popup!
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Now it just directly exits if we add System.exit(), need to ask for permission
+            // If the app does not have the CAMERA permission, request it
+            var requestCamera = 0
+
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.CAMERA), requestCamera)
         }
     }
 
@@ -65,21 +72,16 @@ class MainActivity : AppCompatActivity() {
         return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
     }
 
-    // TODO Replace this with a CameraDevice usage
-    /*
-    fun getCameraInstance(): Camera? {
-        return try {
-            Camera.open() // attempts to get a Camera instance
-        } catch (e: Exception) {
-            // Camera is not available
-            null // Null if camera is unavailable
-        }
+    override fun onRequestPermissionsResult
+                (requestCode: Int, permissions:Array<String>, grantResults: IntArray) {
+        if (grantResults.isEmpty() || grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            exitProcess(1)
     }
-     **/
 
     private fun isBad(dist: Float): Boolean {
         return dist > 30
     }
+
 
 
     // put images into the "assets/images/" folder
