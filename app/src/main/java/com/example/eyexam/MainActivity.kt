@@ -12,6 +12,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import java.io.IOException
 import java.io.InputStream
+import androidx.core.content.ContextCompat
+import android.Manifest
 import com.example.eyexam.EyeDistance
 import android.hardware.camera2.CameraCharacteristics
 
@@ -46,6 +48,12 @@ class MainActivity : AppCompatActivity() {
             print("dist = " + dist)
         }
         examText.setText(dist.toString()).toString()
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            System.exit(1)
+        }
     }
 
     private fun checkCameraHardware(context: Context): Boolean {
