@@ -14,6 +14,7 @@ import java.io.IOException
 import java.io.InputStream
 import androidx.core.content.ContextCompat
 import android.Manifest
+import android.content.Intent
 import com.example.eyexam.EyeDistance
 import android.hardware.camera2.CameraCharacteristics
 
@@ -46,6 +47,10 @@ class MainActivity : AppCompatActivity() {
             println("Clicked")
             dist = ed.get_eye_distance(bm)
             print("dist = " + dist)
+            // GOTO isBad(dist)
+            val intent = Intent(this, Results::class.java)
+                .putExtra("resulto", isBad(dist))
+            startActivity(intent)
         }
         examText.setText(dist.toString()).toString()
 
@@ -72,6 +77,9 @@ class MainActivity : AppCompatActivity() {
     }
      **/
 
+    private fun isBad(dist: Float): Boolean {
+        return dist > 30
+    }
 
 
     // put images into the "assets/images/" folder
