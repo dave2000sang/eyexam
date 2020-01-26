@@ -179,7 +179,7 @@ class MainActivity : AppCompatActivity() {
 
         // Set text
         val examText = findViewById<TextView>(R.id.examText)
-        val inputText = "Lorem Ipsum Hello World"
+        var inputText = "Hello there! To utilize this app, start by holding your phone at full arm's length. Slowly bring your phone closer to your face until you can clearly make out the words in this text area and press the \"CAN SEE\" button."
         examText.setText(inputText).toString()
 
         // Instances
@@ -187,20 +187,36 @@ class MainActivity : AppCompatActivity() {
         var bm = getBitmapFromAssets("test.jpg")
         var dist = 0f
 
+        val textit = TextIt()
+        textit.insert("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vel vehicula nibh, sed ultrices arcu. In venenatis aliquet efficitur. Ut eget tincidunt orci. Donec tincidunt finibus venenatis. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nullam ut hendrerit metus. Vestibulum sollicitudin augue nec posuere maximus. Morbi tristique dignissim arcu aliquam posuere. Duis id porta dui, sit amet consequat purus. Sed faucibus, enim ac viverra tempus, nibh lorem tempus mauris, at tempus ipsum justo at libero. Nunc sodales rhoncus tristique. Ut tincidunt feugiat eros ac vehicula. ")
+        textit.insert("Praesent fringilla diam at mauris euismod tempor. Morbi ac risus quis neque ornare consectetur vel ut turpis. In luctus dignissim venenatis. Nullam malesuada, erat quis pretium scelerisque, leo mi consequat ante, sed porttitor ex velit at mauris. Praesent sit amet ipsum mollis, lobortis ante sed, venenatis mauris. Sed ligula felis, sollicitudin vitae neque at, imperdiet ornare tellus. Mauris sed erat ut eros mattis iaculis. Nulla at turpis cursus, commodo erat ac, gravida tortor. Pellentesque et eros malesuada, elementum erat quis, tempor metus. Nulla aliquet sed turpis nec pharetra. ")
+        textit.insert("Nulla facilisi. Vivamus vitae enim vitae nisl tristique condimentum porta ac libero. Praesent a ornare nulla, at rhoncus dui. Morbi non viverra dui, id pellentesque risus. Nam molestie neque leo, ac consectetur neque consequat vitae. Fusce quis augue pharetra, feugiat quam ac, elementum metus. Cras nisi elit, egestas ac semper in, interdum interdum lectus. Praesent vel quam quis nulla blandit venenatis non at mauris. In odio ante, posuere eget convallis a, suscipit quis nisi. Cras ultrices odio elementum venenatis porttitor. Ut efficitur porttitor quam, et ullamcorper enim auctor eu. Donec sodales euismod metus non ultricies. Nulla mollis elit tempus porttitor lacinia. Ut finibus quis tellus id faucibus. Morbi ullamcorper orci lorem, commodo fermentum neque congue in.")
+
+        val textsize = textit.size()
+        var textcounter = 0
+
         // Button behaviour
         val btnClick = findViewById<Button>(R.id.seeButton)
         btnClick.setOnClickListener {
-            // TODO this call crashes program
             println("Clicked")
             dist = ed.get_eye_distance(bm)
+            textit.store(textcounter, dist)
             print("dist = " + dist)
-            // GOTO isBad(dist)
-            val intent = Intent(this, Results::class.java)
-                .putExtra("resulto", isBad(dist))
-            println("after intent set")
-            startActivity(intent)
+            // TODO this is the button click call
+            if(textcounter >= textsize) {
+                val intent = Intent(this, Results::class.java)
+                    .putExtra("resulto", isBad(textit.average()))
+                println("after intent set")
+                startActivity(intent)
+            }
+            else {
+                inputText = textit.at(textcounter)
+                examText.setText(inputText).toString()
+                ++textcounter
+            }
+
         }
-        examText.setText(dist.toString()).toString()
+        //examText.setText(dist.toString()).toString()
 
 
         // Camera permissions
