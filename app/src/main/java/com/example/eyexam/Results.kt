@@ -12,6 +12,7 @@ class Results : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //overridePendingTransition(R.transition.explode, R.transition.explode)
         setContentView(R.layout.activity_results)
         val resulto = intent.getIntExtra("resulto", 1)
         val resultText = findViewById<TextView>(R.id.resultText)

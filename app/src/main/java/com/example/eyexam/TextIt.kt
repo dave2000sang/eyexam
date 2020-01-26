@@ -13,9 +13,10 @@ class TextIt {
         return ""
     }
 
-    public fun store(i: Int, f: Float) {
+    public fun store(i: Int, f: Float, fs: Float) {
         if(i < list.size) {
-            val tmp = Pair(list[i].first, f)
+            val weighted = (fs * f) /12
+            val tmp = Pair(list[i].first, weighted)
             list[i] = tmp
         }
     }

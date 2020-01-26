@@ -6,8 +6,6 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Context
 import android.content.Intent
@@ -25,9 +23,10 @@ import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Handler
 import android.provider.Settings
+import android.util.TypedValue
 import android.view.Surface
 import android.view.SurfaceHolder
-import android.widget.Toast
+import android.widget.*
 import kotlinx.android.synthetic.main.activity_main.*
 
 // Check if this device has a camera
@@ -194,13 +193,15 @@ class MainActivity : AppCompatActivity() {
 
         val textsize = textit.size()
         var textcounter = 0
+        var fontsize = 12f
+        val minfont = 4
 
         // Button behaviour
         val btnClick = findViewById<Button>(R.id.seeButton)
         btnClick.setOnClickListener {
             println("Clicked")
             dist = ed.get_eye_distance(bm)
-            textit.store(textcounter, dist)
+            textit.store(textcounter, dist, fontsize)
             print("dist = " + dist)
             // TODO this is the button click call
             if(textcounter >= textsize) {
@@ -210,14 +211,15 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
             else {
+                if(fontsize > minfont) fontsize -= 2
+                println("fontsize: " + fontsize)
+                examText.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontsize)
                 inputText = textit.at(textcounter)
                 examText.setText(inputText).toString()
                 ++textcounter
             }
 
         }
-        //examText.setText(dist.toString()).toString()
-
 
         // Camera permissions
         if (!CameraPermissionHelper.hasCameraPermission(this)) {
