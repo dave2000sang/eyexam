@@ -1,5 +1,6 @@
 package com.example.eyexam
 
+// Imported libraries "Context" and "PackageManager"
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -7,9 +8,17 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import android.content.Context
+import android.content.pm.PackageManager
 import java.io.IOException
 import java.io.InputStream
 import com.example.eyexam.EyeDistance
+
+// Check if this device has a camera
+private fun checkCamera(context: Context): Boolean {
+    return (context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA))
+}
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,6 +44,11 @@ class MainActivity : AppCompatActivity() {
         }
         examText.setText(dist.toString()).toString()
     }
+
+    private fun checkCameraHardware(context: Context): Boolean {
+        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
+    }
+
 
     // put images into the "assets/images/" folder
     private fun getBitmapFromAssets(fileName: String): Bitmap {
