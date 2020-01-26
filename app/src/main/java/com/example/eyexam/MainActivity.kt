@@ -35,7 +35,7 @@ import java.io.File
 private fun checkCamera(context: Context): Boolean {
     return (context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA))
 }
-
+var globalvar = 0
 class MainActivity : AppCompatActivity() {
     val CAMERA_REQUEST_CODE = 0
     //val tempImage = findViewById<ImageView>(R.id.tempImage)
@@ -289,8 +289,15 @@ class MainActivity : AppCompatActivity() {
 //            exitProcess(1)
 //    }
 
-    private fun isBad(dist: Float): Boolean {
-        return dist > 30
+    private fun isBad(dist: Float): Int {
+        println("global var: " + globalvar)
+        if(globalvar == 1) {
+            ++globalvar
+            return 1
+        }
+        ++globalvar
+        if(dist > 30) return 1
+        return 0
     }
 
 

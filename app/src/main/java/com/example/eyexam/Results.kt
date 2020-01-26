@@ -16,8 +16,12 @@ class Results : AppCompatActivity() {
         setContentView(R.layout.activity_results)
         val resulto = intent.getIntExtra("resulto", 1)
         val resultText = findViewById<TextView>(R.id.resultText)
-        if(resulto == 1) {
+        println("resulto: " + resulto)
+        if(resulto == 0) {
             resultText.setText("Your eyesight is fine: enjoy your day!").toString()
+        }
+        else {
+            resultText.setText("Please visit your optometrist").toString()
         }
         backButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
