@@ -38,6 +38,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkCameraHardware(context: Context): Boolean {
+        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
+    }
+
+
     // put images into the "assets/images/" folder
     fun getBitmapFromAssets(fileName: String): Bitmap {
         val assetManager = assets
