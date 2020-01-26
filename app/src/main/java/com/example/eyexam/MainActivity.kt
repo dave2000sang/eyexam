@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
 
         recreate()
     }
-
+/*
     private fun startCameraSession() {
         val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
         val cameraIdList = cameraManager.getCameraIdList()
@@ -211,7 +211,7 @@ class MainActivity : AppCompatActivity() {
         }
         return swappedDimensions
     }
-
+*/
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -240,13 +240,13 @@ class MainActivity : AppCompatActivity() {
         // Button behaviour
         val btnClick = findViewById<Button>(R.id.seeButton)
         btnClick.setOnClickListener {
-            val callCameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            /*val callCameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1)
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(path))
             if (callCameraIntent.resolveActivity(packageManager) != null) {
                 startActivityForResult(callCameraIntent, CAMERA_REQUEST_CODE)
             }
-            //bm = tempImage.drawable as Bitmap
+            //bm = tempImage.drawable as Bitmap*/
 
             println("Clicked")
             dist = ed.get_eye_distance(bm)
@@ -275,7 +275,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        surfaceView.holder.addCallback(surfaceReadyCallback)
+        //surfaceView.holder.addCallback(surfaceReadyCallback)
 
     }
 
@@ -306,7 +306,7 @@ class MainActivity : AppCompatActivity() {
 
         return BitmapFactory.decodeStream(inputStream)
     }
-
+/*
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
@@ -325,5 +325,5 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Unrecognized request code", Toast.LENGTH_SHORT)
             }
         }
-    }
+    }*/
 }
