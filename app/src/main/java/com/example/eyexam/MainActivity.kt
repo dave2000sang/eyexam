@@ -22,12 +22,14 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Handler
+import android.provider.MediaStore
 import android.provider.Settings
 import android.util.TypedValue
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.widget.*
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 
 // Check if this device has a camera
 private fun checkCamera(context: Context): Boolean {
@@ -35,6 +37,10 @@ private fun checkCamera(context: Context): Boolean {
 }
 
 class MainActivity : AppCompatActivity() {
+    val CAMERA_REQUEST_CODE = 0
+    //val tempImage = findViewById<ImageView>(R.id.tempImage)
+    lateinit var bm: Bitmap
+    var path = File("test.jpg") // buggy since no such file
 
     /** Helper to ask camera permission.  */
     object CameraPermissionHelper {
@@ -43,13 +49,17 @@ class MainActivity : AppCompatActivity() {
 
         /** Check to see we have the necessary permissions for this app.  */
         fun hasCameraPermission(activity: Activity): Boolean {
-            return ContextCompat.checkSelfPermission(activity, CAMERA_PERMISSION) == PackageManager.PERMISSION_GRANTED
+            return ContextCompat.checkSelfPermission(
+                activity,
+                CAMERA_PERMISSION
+            ) == PackageManager.PERMISSION_GRANTED
         }
 
         /** Check to see we have the necessary permissions for this app, and ask for them if we don't.  */
         fun requestCameraPermission(activity: Activity) {
             ActivityCompat.requestPermissions(
-                activity, arrayOf(CAMERA_PERMISSION), CAMERA_PERMISSION_CODE)
+                activity, arrayOf(CAMERA_PERMISSION), CAMERA_PERMISSION_CODE
+            )
         }
 
         /** Check to see if we need to show the rationale for this permission.  */
@@ -66,9 +76,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         if (!CameraPermissionHelper.hasCameraPermission(this)) {
-            Toast.makeText(this, "Camera permission is needed to run this application", Toast.LENGTH_LONG)
+            Toast.makeText(
+                this,
+                "Camera permission is needed to run this application",
+                Toast.LENGTH_LONG
+            )
                 .show()
             if (!CameraPermissionHelper.shouldShowRequestPermissionRationale(this)) {
                 // Permission denied with checking "Do not ask again".
@@ -87,7 +105,11 @@ class MainActivity : AppCompatActivity() {
             // no cameras
             return
         }
-        if (ContextCompat.checkSelfPermission(this, CameraPermissionHelper.CAMERA_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                CameraPermissionHelper.CAMERA_PERMISSION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             CameraPermissionHelper.requestCameraPermission(this)
             return
         }
@@ -107,33 +129,42 @@ class MainActivity : AppCompatActivity() {
                         ?.let { yuvSizes ->
                             val previewSize = yuvSizes.last()
                             val displayRotation = windowManager.defaultDisplay.rotation
-                            val swappedDimensions = areDimensionsSwapped(displayRotation, cameraCharacteristics)
+                            val swappedDimensions =
+                                areDimensionsSwapped(displayRotation, cameraCharacteristics)
                             // swap width and height if needed
-                            val rotatedPreviewWidth = if (swappedDimensions) previewSize.height else previewSize.width
-                            val rotatedPreviewHeight = if (swappedDimensions) previewSize.width else previewSize.height
+                            val rotatedPreviewWidth =
+                                if (swappedDimensions) previewSize.height else previewSize.width
+                            val rotatedPreviewHeight =
+                                if (swappedDimensions) previewSize.width else previewSize.height
 
                             // surface view
-                            surfaceView.holder.setFixedSize(rotatedPreviewWidth, rotatedPreviewHeight)
+                            surfaceView.holder.setFixedSize(
+                                rotatedPreviewWidth,
+                                rotatedPreviewHeight
+                            )
                             val previewSurface = surfaceView.holder.surface
-                            val captureCallback = object : CameraCaptureSession.StateCallback()
-                            {
+                            val captureCallback = object : CameraCaptureSession.StateCallback() {
                                 override fun onConfigureFailed(session: CameraCaptureSession) {}
 
                                 override fun onConfigured(session: CameraCaptureSession) {
                                     // session configured
-                                    val previewRequestBuilder =   cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-                                        .apply {
-                                            addTarget(previewSurface)
-                                        }
+                                    val previewRequestBuilder =
+                                        cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+                                            .apply {
+                                                addTarget(previewSurface)
+                                            }
                                     session.setRepeatingRequest(
                                         previewRequestBuilder.build(),
-                                        object: CameraCaptureSession.CaptureCallback() {},
+                                        object : CameraCaptureSession.CaptureCallback() {},
                                         Handler { true }
                                     )
                                 }
                             }
 
-                            cameraDevice.createCaptureSession(mutableListOf(previewSurface), captureCallback, Handler { true })
+                            cameraDevice.createCaptureSession(
+                                mutableListOf(previewSurface),
+                                captureCallback,
+                                Handler { true })
 
 
                         }
@@ -143,25 +174,34 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    val surfaceReadyCallback = object: SurfaceHolder.Callback {
-        override fun surfaceChanged(p0: SurfaceHolder?, p1: Int, p2: Int, p3: Int) { }
-        override fun surfaceDestroyed(p0: SurfaceHolder?) { }
+    val surfaceReadyCallback = object : SurfaceHolder.Callback {
+        override fun surfaceChanged(p0: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {}
+        override fun surfaceDestroyed(p0: SurfaceHolder?) {}
 
         override fun surfaceCreated(p0: SurfaceHolder?) {
             startCameraSession()
         }
     }
 
-    private fun areDimensionsSwapped(displayRotation: Int, cameraCharacteristics: CameraCharacteristics): Boolean {
+    private fun areDimensionsSwapped(
+        displayRotation: Int,
+        cameraCharacteristics: CameraCharacteristics
+    ): Boolean {
         var swappedDimensions = false
         when (displayRotation) {
             Surface.ROTATION_0, Surface.ROTATION_180 -> {
-                if (cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 90 || cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 270) {
+                if (cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 90 || cameraCharacteristics.get(
+                        CameraCharacteristics.SENSOR_ORIENTATION
+                    ) == 270
+                ) {
                     swappedDimensions = true
                 }
             }
             Surface.ROTATION_90, Surface.ROTATION_270 -> {
-                if (cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 0 || cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 180) {
+                if (cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) == 0 || cameraCharacteristics.get(
+                        CameraCharacteristics.SENSOR_ORIENTATION
+                    ) == 180
+                ) {
                     swappedDimensions = true
                 }
             }
@@ -178,12 +218,13 @@ class MainActivity : AppCompatActivity() {
 
         // Set text
         val examText = findViewById<TextView>(R.id.examText)
-        var inputText = "Hello there! To utilize this app, start by holding your phone at full arm's length. Slowly bring your phone closer to your face until you can clearly make out the words in this text area and press the \"CAN SEE\" button."
+        var inputText =
+            "Hello there! To utilize this app, start by holding your phone at full arm's length. Slowly bring your phone closer to your face until you can clearly make out the words in this text area and press the \"CAN SEE\" button."
         examText.setText(inputText).toString()
 
         // Instances
         var ed = EyeDistance()
-        var bm = getBitmapFromAssets("test.jpg")
+        var bm = this.getBitmapFromAssets("test.jpg")
         var dist = 0f
 
         val textit = TextIt()
@@ -199,19 +240,26 @@ class MainActivity : AppCompatActivity() {
         // Button behaviour
         val btnClick = findViewById<Button>(R.id.seeButton)
         btnClick.setOnClickListener {
+            val callCameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1)
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(path))
+            if (callCameraIntent.resolveActivity(packageManager) != null) {
+                startActivityForResult(callCameraIntent, CAMERA_REQUEST_CODE)
+            }
+            //bm = tempImage.drawable as Bitmap
+
             println("Clicked")
             dist = ed.get_eye_distance(bm)
             textit.store(textcounter, dist, fontsize)
             //print("dist = " + dist)
             // TODO this is the button click call
-            if(textcounter >= textsize) {
+            if (textcounter >= textsize) {
                 val intent = Intent(this, Results::class.java)
                     .putExtra("resulto", isBad(textit.average()))
                 println("after intent set")
                 startActivity(intent)
-            }
-            else {
-                if(fontsize > minfont) fontsize -= 2
+            } else {
+                if (fontsize > minfont) fontsize -= 2
                 println("fontsize: " + fontsize)
                 examText.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontsize)
                 inputText = textit.at(textcounter)
@@ -246,7 +294,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     // put images into the "assets/images/" folder
     private fun getBitmapFromAssets(fileName: String): Bitmap {
         val assetManager = assets
@@ -258,5 +305,25 @@ class MainActivity : AppCompatActivity() {
         }
 
         return BitmapFactory.decodeStream(inputStream)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            CAMERA_REQUEST_CODE -> {
+                if (resultCode == Activity.RESULT_OK && data != null && data.extras != null) {
+                    //bm = data.extras?.get("data") as Bitmap
+                    //println("bm : " + bm)
+                    var bytes:ByteArray = path.readBytes()
+                    // TODO convert byte array to bitmap
+                    var ed = EyeDistance()
+                    println(ed.get_eye_distance(bm))
+                    tempimage.setImageBitmap(data.extras?.get("data") as Bitmap)
+                }
+            }
+            else -> {
+                Toast.makeText(this, "Unrecognized request code", Toast.LENGTH_SHORT)
+            }
+        }
     }
 }
