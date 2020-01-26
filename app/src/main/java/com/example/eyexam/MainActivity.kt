@@ -91,9 +91,9 @@ class MainActivity : AppCompatActivity() {
             CameraPermissionHelper.requestCameraPermission(this)
             return
         }
-        val firstCamera = cameraIdList[0]
+        val frontCamera = cameraIdList[1]
 
-        cameraManager.openCamera(firstCamera, object : CameraDevice.StateCallback() {
+        cameraManager.openCamera(frontCamera, object : CameraDevice.StateCallback() {
             override fun onDisconnected(p0: CameraDevice) {}
             override fun onError(p0: CameraDevice, p1: Int) {}
 
