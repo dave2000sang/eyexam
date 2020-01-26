@@ -40,10 +40,10 @@ private fun checkCamera(context: Context): Boolean {
 }
 
 class MainActivity : AppCompatActivity() {
-    lateinit var curImage: Bitmap
+//    lateinit var curImage: Bitmap
     val CAMERA_REQUEST_CODE = 0
     //val tempImage = findViewById<ImageView>(R.id.tempImage)
-    lateinit var bm: Bitmap
+//    lateinit var bm: Bitmap
     var path = File("test.jpg") // buggy since no such file
 
     /** Helper to ask camera permission.  */
