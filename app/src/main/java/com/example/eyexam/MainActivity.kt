@@ -24,10 +24,12 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Handler
+import android.provider.MediaStore
 import android.provider.Settings
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.widget.Toast
+import android.widget.ImageView
 import kotlinx.android.synthetic.main.activity_main.*
 
 // Check if this device has a camera
@@ -77,8 +79,14 @@ class MainActivity : AppCompatActivity() {
             }
             finish()
         }
-
         recreate()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null && data.extras != null) {
+            val imgbmp = data.extras?.get("data") as Bitmap
+            // ImageView.setImageBitmap(imgbmp)
+        }
     }
 
     private fun startCameraSession() {
@@ -184,6 +192,7 @@ class MainActivity : AppCompatActivity() {
 
         // Instances
         var ed = EyeDistance()
+        // Gets a backup image from the "Assets" folder
         var bm = getBitmapFromAssets("test.jpg")
         var dist = 0f
 
@@ -191,6 +200,10 @@ class MainActivity : AppCompatActivity() {
         val btnClick = findViewById<Button>(R.id.seeButton)
         btnClick.setOnClickListener {
             // TODO this call crashes program
+
+            // Takes a picture with Intent
+            takePictureIntent()
+
             println("Clicked")
             dist = ed.get_eye_distance(bm)
             print("dist = " + dist)
@@ -222,12 +235,17 @@ class MainActivity : AppCompatActivity() {
 //        if (grantResults.isEmpty() || grantResults[0] == PackageManager.PERMISSION_GRANTED)
 //            exitProcess(1)
 //    }
+    private fun takePictureIntent() {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            takePictureIntent.resolveActivity(packageManager)?.also {
+                startActivityForResult(takePictureIntent, 1)
+            }
+        }
+    }
 
     private fun isBad(dist: Float): Boolean {
         return dist > 30
     }
-
-
 
     // put images into the "assets/images/" folder
     private fun getBitmapFromAssets(fileName: String): Bitmap {
