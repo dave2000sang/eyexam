@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
-            System.exit(1)
+            // TODO: Now it just directly exits if we add System.exit(), need to ask for permission
         }
     }
 
