@@ -16,6 +16,7 @@ class TextIt {
     public fun store(i: Int, f: Float, fs: Float) {
         if(i < list.size) {
             val weighted = (fs * f) /12
+            println("dist weighted: " + weighted)
             val tmp = Pair(list[i].first, weighted)
             list[i] = tmp
         }

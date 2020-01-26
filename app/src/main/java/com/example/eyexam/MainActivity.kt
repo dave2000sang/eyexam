@@ -202,7 +202,7 @@ class MainActivity : AppCompatActivity() {
             println("Clicked")
             dist = ed.get_eye_distance(bm)
             textit.store(textcounter, dist, fontsize)
-            print("dist = " + dist)
+            //print("dist = " + dist)
             // TODO this is the button click call
             if(textcounter >= textsize) {
                 val intent = Intent(this, Results::class.java)
