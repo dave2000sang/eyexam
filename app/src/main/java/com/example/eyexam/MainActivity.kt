@@ -20,6 +20,8 @@ import androidx.core.app.ActivityCompat
 import kotlin.system.exitProcess
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.media.Image
+import android.media.ImageReader
 import android.net.Uri
 import android.os.Handler
 import android.provider.MediaStore
@@ -29,6 +31,7 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.widget.*
 import kotlinx.android.synthetic.main.activity_main.*
+import java.nio.ByteBuffer
 import java.io.File
 
 // Check if this device has a camera
@@ -37,9 +40,10 @@ private fun checkCamera(context: Context): Boolean {
 }
 var globalvar = 0
 class MainActivity : AppCompatActivity() {
+//    lateinit var curImage: Bitmap
     val CAMERA_REQUEST_CODE = 0
     //val tempImage = findViewById<ImageView>(R.id.tempImage)
-    lateinit var bm: Bitmap
+//    lateinit var bm: Bitmap
     var path = File("test.jpg") // buggy since no such file
 
     /** Helper to ask camera permission.  */
@@ -113,6 +117,7 @@ class MainActivity : AppCompatActivity() {
             CameraPermissionHelper.requestCameraPermission(this)
             return
         }
+        // val firstCamera = cameraIdList[0]
         val frontCamera = cameraIdList[1]
 
         cameraManager.openCamera(frontCamera, object : CameraDevice.StateCallback() {
@@ -125,7 +130,7 @@ class MainActivity : AppCompatActivity() {
                     cameraManager.getCameraCharacteristics(cameraDevice.id)
 
                 cameraCharacteristics[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]?.let { streamConfigurationMap ->
-                    streamConfigurationMap.getOutputSizes(ImageFormat.YUV_420_888)
+                    streamConfigurationMap.getOutputSizes(ImageFormat.JPEG)
                         ?.let { yuvSizes ->
                             val previewSize = yuvSizes.last()
                             val displayRotation = windowManager.defaultDisplay.rotation
@@ -138,21 +143,51 @@ class MainActivity : AppCompatActivity() {
                                 if (swappedDimensions) previewSize.width else previewSize.height
 
                             // surface view
+//
+//                            surfaceView.holder.setFixedSize(rotatedPreviewWidth, rotatedPreviewHeight)
+//
+//                            // Image reading
+//                            val imageReader = ImageReader.newInstance(rotatedPreviewWidth, rotatedPreviewHeight,
+//                                ImageFormat.JPEG, 2)
+//                            imageReader.setOnImageAvailableListener({
+//                                // do something
+//                                imageReader.acquireLatestImage()?.let { image ->
+//                                    println("timestamp = " + image.timestamp)
+////                                    var buffer = image.getPlanes()[0].getBuffer()
+//                                    var buffer = image.planes[0].buffer
+//                                    println("BUFFER = " + buffer)
+//                                    var bytes = ByteArray(buffer.remaining())
+//                                    println("BYTES = " + bytes)
+//                                    buffer.get(bytes)
+//                                    var bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+//                                    println("BITMAPIMAGE = " + bitmapImage)
+//                                    var ed = EyeDistance()
+//                                    var dist = ed.get_eye_distance(bitmapImage)
+//                                    print("dist = " + dist)
+//                                    image.close()
+//                                }
+//                            }, Handler { true })
+//
+//                            val recordingSurface = imageReader.surface
+
+
                             surfaceView.holder.setFixedSize(
                                 rotatedPreviewWidth,
                                 rotatedPreviewHeight
                             )
+
                             val previewSurface = surfaceView.holder.surface
                             val captureCallback = object : CameraCaptureSession.StateCallback() {
                                 override fun onConfigureFailed(session: CameraCaptureSession) {}
 
                                 override fun onConfigured(session: CameraCaptureSession) {
                                     // session configured
-                                    val previewRequestBuilder =
-                                        cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-                                            .apply {
-                                                addTarget(previewSurface)
-                                            }
+                                    val previewRequestBuilder =   cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+                                        .apply {
+                                            addTarget(previewSurface)
+//                                            addTarget(recordingSurface)
+                                        }
+
                                     session.setRepeatingRequest(
                                         previewRequestBuilder.build(),
                                         object : CameraCaptureSession.CaptureCallback() {},
@@ -161,10 +196,9 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
 
-                            cameraDevice.createCaptureSession(
-                                mutableListOf(previewSurface),
-                                captureCallback,
-                                Handler { true })
+//                            cameraDevice.createCaptureSession(mutableListOf(previewSurface, recordingSurface), captureCallback, Handler { true })
+                            cameraDevice.createCaptureSession(mutableListOf(previewSurface), captureCallback, Handler { true })
+
 
 
                         }
@@ -249,6 +283,14 @@ class MainActivity : AppCompatActivity() {
             //bm = tempImage.drawable as Bitmap*/
 
             println("Clicked")
+
+            // read curImage and convert to Bitmap
+//            var buffer = curImage.getPlanes()[0].getBuffer()
+//            var bytes = ByteArray(buffer.capacity())
+//            buffer.get(bytes)
+//            var bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
+
+            // calculate eye distance
             dist = ed.get_eye_distance(bm)
             textit.store(textcounter, dist, fontsize)
             //print("dist = " + dist)
