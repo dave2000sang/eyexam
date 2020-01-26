@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import java.io.IOException
 import java.io.InputStream
+import com.example.eyexam.EyeDistance
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,16 +22,22 @@ class MainActivity : AppCompatActivity() {
         val inputText = "Lorem Ipsum Hello World"
         examText.setText(inputText).toString()
 
+        // Instances
+        var ed = EyeDistance()
+        var bm = getBitmapFromAssets("test.jpg")
+        var dist = 0f
+
         // Button behaviour
         val btnClick = findViewById<Button>(R.id.seeButton)
         btnClick.setOnClickListener {
-            // TODO Call david's eye distance function
-
+            // TODO this call crashes program
+            dist = ed.get_eye_distance(bm)
         }
+        examText.setText(dist.toString()).toString()
     }
 
     // put images into the "assets/images/" folder
-    fun getBitmapFromAssets(fileName: String): Bitmap {
+    private fun getBitmapFromAssets(fileName: String): Bitmap {
         val assetManager = assets
         var inputStream: InputStream? = null
         try {
