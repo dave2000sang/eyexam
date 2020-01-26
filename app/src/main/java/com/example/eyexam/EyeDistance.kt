@@ -16,20 +16,20 @@ class EyeDistance {
 
     fun get_eye_distance(img: Bitmap): Float {
         val bitmap565 = img.copy(Bitmap.Config.RGB_565, true)
-        var face_detector = FaceDetector(img.width, img.height, MAX_FACES)
+        var faceDetector = FaceDetector(img.width, img.height, MAX_FACES)
 
         val faces = arrayOfNulls<FaceDetector.Face>(1)
-        face_detector.findFaces(bitmap565, faces)
+        faceDetector.findFaces(bitmap565, faces)
         val face = faces[0]
-        var eyes_distance: Float
+        var eyesDistance: Float
 
         if (face != null) {
             println("break here 1")
-            eyes_distance = face.eyesDistance()
-            println(eyes_distance)
+            eyesDistance = face.eyesDistance()
+            println(eyesDistance)
         } else {
             return -1.0f
         }
-        return eyes_distance
+        return eyesDistance
     }
 }
