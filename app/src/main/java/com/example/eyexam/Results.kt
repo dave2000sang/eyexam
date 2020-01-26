@@ -12,11 +12,12 @@ class Results : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //overridePendingTransition(R.transition.explode, R.transition.explode)
         setContentView(R.layout.activity_results)
         val resulto = intent.getIntExtra("resulto", 1)
         val resultText = findViewById<TextView>(R.id.resultText)
         if(resulto == 1) {
-            resultText.setText("GOOD").toString()
+            resultText.setText("Your eyesight is fine: enjoy your day!").toString()
         }
         backButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
