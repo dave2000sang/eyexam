@@ -14,6 +14,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.ImageFormat
+import android.hardware.camera2.CameraCaptureSession
 import java.io.IOException
 import java.io.InputStream
 import com.example.eyexam.EyeDistance
@@ -24,9 +25,11 @@ import android.net.Uri
 import android.os.Handler
 import android.provider.Settings
 import android.view.Surface
+import android.view.SurfaceHolder
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import kotlinx.android.synthetic.main.activity_main.*
 
 // Check if this device has a camera
 private fun checkCamera(context: Context): Boolean {
@@ -87,7 +90,7 @@ class MainActivity : AppCompatActivity() {
             // no cameras
             return
         }
-        if (!ContextCompat.checkSelfPermission(this, CameraPermissionHelper.CAMERA_PERMISSION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, CameraPermissionHelper.CAMERA_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
             CameraPermissionHelper.requestCameraPermission(this)
             return
         }
@@ -106,17 +109,50 @@ class MainActivity : AppCompatActivity() {
                     streamConfigurationMap.getOutputSizes(ImageFormat.YUV_420_888)
                         ?.let { yuvSizes ->
                             val previewSize = yuvSizes.last()
+                            val displayRotation = windowManager.defaultDisplay.rotation
+                            val swappedDimensions = areDimensionsSwapped(displayRotation, cameraCharacteristics)
+                            // swap width and height if needed
+                            val rotatedPreviewWidth = if (swappedDimensions) previewSize.height else previewSize.width
+                            val rotatedPreviewHeight = if (swappedDimensions) previewSize.width else previewSize.height
+
+                            // surface view
+                            surfaceView.holder.setFixedSize(rotatedPreviewWidth, rotatedPreviewHeight)
+                            val previewSurface = surfaceView.holder.surface
+                            val captureCallback = object : CameraCaptureSession.StateCallback()
+                            {
+                                override fun onConfigureFailed(session: CameraCaptureSession) {}
+
+                                override fun onConfigured(session: CameraCaptureSession) {
+                                    // session configured
+                                    val previewRequestBuilder =   cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+                                        .apply {
+                                            addTarget(previewSurface)
+                                        }
+                                    session.setRepeatingRequest(
+                                        previewRequestBuilder.build(),
+                                        object: CameraCaptureSession.CaptureCallback() {},
+                                        Handler { true }
+                                    )
+                                }
+                            }
+
+                            cameraDevice.createCaptureSession(mutableListOf(previewSurface), captureCallback, Handler { true })
+
+
                         }
                 }
             }
         }, Handler { true })
 
-        val previewSize = yuvSizes.last()
-        val displayRotation = windowManager.defaultDisplay.rotation
-        val swappedDimensions = areDimensionsSwapped(displayRotation, cameraCharacteristics)
-        // swap width and height if needed
-        val rotatedPreviewWidth = if (swappedDimensions) previewSize.height else previewSize.width
-        val rotatedPreviewHeight = if (swappedDimensions) previewSize.width else previewSize.height
+    }
+
+    val surfaceReadyCallback = object: SurfaceHolder.Callback {
+        override fun surfaceChanged(p0: SurfaceHolder?, p1: Int, p2: Int, p3: Int) { }
+        override fun surfaceDestroyed(p0: SurfaceHolder?) { }
+
+        override fun surfaceCreated(p0: SurfaceHolder?) {
+            startCameraSession()
+        }
     }
 
     private fun areDimensionsSwapped(displayRotation: Int, cameraCharacteristics: CameraCharacteristics): Boolean {
@@ -143,11 +179,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Camera permissions
-        if (!CameraPermissionHelper.hasCameraPermission(this)) {
-            CameraPermissionHelper.requestCameraPermission(this)
-            return
-        }
         // Set text
         val examText = findViewById<TextView>(R.id.examText)
         val inputText = "Lorem Ipsum Hello World"
@@ -168,8 +199,13 @@ class MainActivity : AppCompatActivity() {
         }
         examText.setText(dist.toString()).toString()
 
+        // Camera permissions
+        if (!CameraPermissionHelper.hasCameraPermission(this)) {
+            CameraPermissionHelper.requestCameraPermission(this)
+            return
+        }
 
-
+        surfaceView.holder.addCallback(surfaceReadyCallback)
 
     }
 
