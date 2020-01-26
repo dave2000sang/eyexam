@@ -197,6 +197,7 @@ class MainActivity : AppCompatActivity() {
             // GOTO isBad(dist)
             val intent = Intent(this, Results::class.java)
                 .putExtra("resulto", isBad(dist))
+            println("after intent set")
             startActivity(intent)
         }
         examText.setText(dist.toString()).toString()
