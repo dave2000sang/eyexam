@@ -13,6 +13,7 @@ import android.content.pm.PackageManager
 import java.io.IOException
 import java.io.InputStream
 import com.example.eyexam.EyeDistance
+import android.hardware.camera2.CameraCharacteristics
 
 // Check if this device has a camera
 private fun checkCamera(context: Context): Boolean {
@@ -48,6 +49,19 @@ class MainActivity : AppCompatActivity() {
     private fun checkCameraHardware(context: Context): Boolean {
         return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
     }
+
+    // TODO Replace this with a CameraDevice usage
+    /*
+    fun getCameraInstance(): Camera? {
+        return try {
+            Camera.open() // attempts to get a Camera instance
+        } catch (e: Exception) {
+            // Camera is not available
+            null // Null if camera is unavailable
+        }
+    }
+     **/
+
 
 
     // put images into the "assets/images/" folder
