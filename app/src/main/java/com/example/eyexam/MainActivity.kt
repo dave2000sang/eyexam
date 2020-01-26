@@ -41,7 +41,9 @@ class MainActivity : AppCompatActivity() {
         val btnClick = findViewById<Button>(R.id.seeButton)
         btnClick.setOnClickListener {
             // TODO this call crashes program
+            println("Clicked")
             dist = ed.get_eye_distance(bm)
+            print("dist = " + dist)
         }
         examText.setText(dist.toString()).toString()
     }
